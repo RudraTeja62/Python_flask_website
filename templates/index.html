@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+</head>
+<body>
+    <table style="width:100%">
+        <tbody>
+            <tr>
+                <td style="width:50%">
+                    <h2>Record and Upload Audio</h2>
+                    <button id="record">Record</button>
+                    <button id="stop" disabled>Stop</button>
+                    <span id="timer">00:00</span>
+                    
+                    <!-- Audio playback element -->
+                    <audio id="audio" controls style="display: none;"></audio>
+                    
+                    <h2>Recorded Files</h2>
+                    <ul>
+                        {% for file in files %}
+                        <li>
+                            <audio controls>
+                                <source src="{{ url_for('uploaded_file', filename=file) }}">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <br>
+                            <a href="{{ url_for('uploaded_file', filename=file) }}">{{ file }}</a>
+                            {% if file in transcripts %}
+                            <!-- Link to the transcript -->
+                            <a href="{{ url_for('uploaded_file', filename=transcripts[file]) }}" target="_blank">View Transcript</a>
+                            {% else %}
+                            <span>No Transcript Available</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+
+                <td style="width:50%">
+                    <h2>Type in Your Text to Generate Audio</h2>
+                    <form action="/upload_text" method="post">
+                        <textarea name="text" rows="10" cols="50" placeholder="Enter your text here"></textarea>
+                        <br>
+                        <input type="submit" value="Generate Audio">
+                    </form>
+
+                    <h2>Generated Audio Files</h2>
+                    <ul>
+                        {% for tts_file in tts_files %}
+                        <li>
+                            <audio controls>
+                                <source src="{{ url_for('uploaded_file', filename=tts_file) }}">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <br>
+                            {{ tts_file }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
