@@ -3,68 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Recorder</title>
+    <title>Audio Recorder and Text-to-Speech</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px gray;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            width: 50%;
+            vertical-align: top;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: orange;
+        }
+        textarea {
+            width: 90%;
+            padding: 10px;
+        }
+        #timer {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <table style="width:100%">
-        <tbody>
-            <tr>
-                <td style="width:50%">
-                    <h2>Record and Upload Audio</h2>
-                    <button id="record">Record</button>
-                    <button id="stop" disabled>Stop</button>
-                    <span id="timer">00:00</span>
-                    
-                    <!-- Audio playback element -->
-                    <audio id="audio" controls style="display: none;"></audio>
-                    
-                    <h2>Recorded Files</h2>
-                    <ul>
-                        {% for file in files %}
+<div class="container">
+    <h1>Audio Recorder and Text-to-Speech</h1>
+    <p class="error-message" id="errorMessage"></p> <!-- Error Message Display -->
+    <table>
+        <tr>
+            <td>
+                <h2>Record and Upload Audio</h2>
+                <button id="record">Record</button>
+                <button id="stop" disabled>Stop</button>
+                <p id="timer">00:00</p>
+                <audio id="audio" controls></audio>
+                <hr>
+                <h2>Recorded Audio Files</h2>
+                <ul id="audioList">
+                    {% for file in audio_files %}
                         <li>
                             <audio controls>
-                                <source src="{{ url_for('uploaded_file', filename=file) }}">
+                                <source src="{{ url_for('uploaded_file', filename=file) }}" type="audio/mp3">
                                 Your browser does not support the audio element.
                             </audio>
-                            <br>
-                            <a href="{{ url_for('uploaded_file', filename=file) }}">{{ file }}</a>
-                            {% if file in transcripts %}
-                            <!-- Link to the transcript -->
-                            <a href="{{ url_for('uploaded_file', filename=transcripts[file]) }}" target="_blank">View Transcript</a>
-                            {% else %}
-                            <span>No Transcript Available</span>
-                            {% endif %}
+                            <br><strong>{{ file }}</strong>
+                            <pre id="transcript-{{ file }}">Loading transcript...</pre>
+                            <p>
+                                <a href="{{ url_for('uploaded_file', filename=file.replace('.mp3', '_sentiment.txt')) }}" target="_blank">Download Sentiment Analysis</a>
+                            </p>
                         </li>
-                        {% endfor %}
-                    </ul>
-                </td>
-
-                <td style="width:50%">
-                    <h2>Type in Your Text to Generate Audio</h2>
-                    <form action="/upload_text" method="post">
-                        <textarea name="text" rows="10" cols="50" placeholder="Enter your text here"></textarea>
-                        <br>
-                        <input type="submit" value="Generate Audio">
-                    </form>
-
-                    <h2>Generated Audio Files</h2>
-                    <ul>
-                        {% for tts_file in tts_files %}
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <h2>Type in Your Text to Generate Audio</h2>
+                <form id="textToSpeechForm" action="/text_to_speech" method="post">
+                    <textarea name="text" id="textInput" rows="10" cols="50" placeholder="Enter your text here"></textarea>
+                    <br>
+                    <input type="submit" value="Generate Audio">
+                </form>
+                <h2>Generated Audio Files</h2>
+                <ul id="ttsAudioList">
+                    {% for tts_file in tts_files %}
                         <li>
                             <audio controls>
-                                <source src="{{ url_for('uploaded_file', filename=tts_file) }}">
+                                <source src="{{ url_for('tts_file', filename=tts_file) }}" type="audio/mp3">
                                 Your browser does not support the audio element.
                             </audio>
-                            <br>
-                            {{ tts_file }}
+                            <br><strong>{{ tts_file }}</strong>
+                            <p>
+                                <a href="{{ url_for('tts_file', filename=tts_file.replace('.mp3', '_sentiment.txt')) }}" target="_blank">Download Sentiment Analysis</a>
+                            </p>
                         </li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
     </table>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</div>
+<script>
+    function displayErrorMessage(message) {
+        document.getElementById("errorMessage").textContent = message;
+    }
+</script>
+<script src="/static/script.js"></script>
 </body>
 </html>

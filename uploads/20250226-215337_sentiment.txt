@@ -1,0 +1,4 @@
+Text: hey hello hi I'm fine thank you how about you
+Sentiment: Positive
+Score: 0.8999999761581421
+Magnitude: 0.8999999761581421
